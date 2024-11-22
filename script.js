@@ -209,7 +209,7 @@ document.getElementById('formPernikahan').addEventListener('submit', function(ev
   })
   .then(response => response.text())
   .then(text => {
-    document.getElementById('respon').innerHTML = 'Terima kasih atas doa dan ucapannya ya. <br/> Halaman akan refresh otomatis';
+    document.getElementById('respon').innerHTML = 'Terima kasih atas doa dan ucapannya. <br/> Halaman akan refresh otomatis';
 
     // Menambahkan style agar tampil seperti alert melayang
     var responElement = document.getElementById('respon');
