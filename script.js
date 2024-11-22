@@ -143,15 +143,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Fungsi untuk mengambil semua data ucapan dari Google Sheets
 function fetchUcapan() {
+
   var url = 'https://script.google.com/macros/s/AKfycbxG8lADguQ9oUeckmkaLcHraGKvhBFf2jnyXry3o-_fvwzwGgjxNY_q9RWR2jZ0b18N/exec'; // Ganti dengan URL Web App Google Apps Script Anda
 
   fetch(url)
     .then(response => response.json())
     .then(data => {
       displayAllUcapan(data); // Tampilkan semua ucapan yang diterima di halaman
+      document.getElementById('spinner').style.display = 'none'; // Sembunyikan spinner setelah data dimuat
     })
     .catch(error => {
       console.error('Error fetching ucapan:', error);
+      document.getElementById('spinner').style.display = 'none'; // Sembunyikan spinner jika terjadi error
     });
 }
 
@@ -177,13 +180,17 @@ document.getElementById('formPernikahan').addEventListener('submit', function(ev
   var kehadiran = document.getElementById('kehadiran').value;
   var pesan = document.getElementById('pesan').value;
 
+  // Menampilkan spinner sebelum kirim data
+  document.getElementById('spinner').style.display = 'block';
+
   // Cek apakah nama sudah ada
   var isNamaExist = window.ucapanData.some(function(ucapan) {
     return ucapan.nama.toLowerCase() === nama.toLowerCase(); // Membandingkan nama tanpa memperhatikan huruf besar/kecil
   });
 
   if (isNamaExist) {
-    showAlert("Ucapanmu sudah ada");
+    showAlert("Namamu sudah ada. <br/> Coba gunakan nama lain");
+    document.getElementById('spinner').style.display = 'none'; // Sembunyikan spinner jika nama sudah ada
     return; // Hentikan pengiriman data jika nama sudah ada
   }
 
@@ -200,31 +207,56 @@ document.getElementById('formPernikahan').addEventListener('submit', function(ev
       'pesan': pesan
     })
   })
-  .then(response => response.json()) // Mengambil respons dalam bentuk JSON
-  .then(data => {
-    if (data.status === 'success') {
-      document.getElementById('respon').innerHTML = 'Terima kasih, ucapan Anda sudah diterima!';
-      
-      // Tambahkan ucapan baru ke tampilan
-      var ucapanContainer = document.getElementById('ucapan');
-      var ucapanItem = document.createElement('div');
-      ucapanItem.classList.add('ucapan-item');
-      ucapanItem.innerHTML = `<strong>${nama} (${kehadiran}):</strong><p>${pesan}</p>`;
-      ucapanContainer.prepend(ucapanItem); // Menambahkan ke atas daftar
+  .then(response => response.text())
+  .then(text => {
+    document.getElementById('respon').innerHTML = 'Terima kasih atas doa dan ucapannya ya. <br/> Halaman akan refresh otomatis';
 
-      document.getElementById('formPernikahan').reset(); // Reset form setelah kirim
+    // Menambahkan style agar tampil seperti alert melayang
+    var responElement = document.getElementById('respon');
 
-      // Menunggu beberapa detik dan refresh halaman
-      setTimeout(function() {
-        window.location.reload(); // Halaman akan di-refresh setelah data berhasil dikirim
-      }, 2000); // Memberikan delay 2 detik
+    responElement.style.position = 'fixed';
+    responElement.style.bottom = '50%';
+    responElement.style.left = '50%';
+    responElement.style.transform = 'translateX(-50%)';
+    responElement.style.padding = '10px 10px';
+    responElement.style.backgroundColor = 'rgba(0, 138, 140, 0.8)';
+    responElement.style.color = 'rgba(255, 255, 255, 1)';
+    responElement.style.borderRadius = '15px';
+    responElement.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+    responElement.style.fontSize = '16px';
+    responElement.style.textAlign = 'center';
+    responElement.style.zIndex = '1000';
+    // Mengatur lebar responsif
+    responElement.style.width = '60%';         // Lebar otomatis
+    responElement.style.maxWidth = '60%';     // Maksimal lebar 600px
+    responElement.style.minWidth = '200px';     // Lebar minimal 200px
+ 
+    // Hapus respon setelah 3 detik
+    setTimeout(function() {
+      respon.remove();
+    }, 5000);
+    
+    document.getElementById('spinner').style.display = 'none';
 
-    } else {
-      document.getElementById('respon').innerHTML = 'Terjadi kesalahan: ' + data.message;
-    }
+    // Tambahkan ucapan baru ke tampilan
+    var ucapanContainer = document.getElementById('ucapan');
+    var ucapanItem = document.createElement('div');
+    ucapanItem.classList.add('ucapan-item');
+    ucapanItem.innerHTML = `<strong>${nama} (${kehadiran}):</strong><p>${pesan}</p>`;
+    ucapanContainer.prepend(ucapanItem); // Menambahkan ke atas daftar
+
+    document.getElementById('formPernikahan').reset(); // Reset form setelah kirim
+
+    // Memberikan delay 2 detik dan refresh halaman
+    setTimeout(function() {
+      window.location.reload(); // Halaman akan direfresh setelah data terkirim
+    }, 5000); // Delay 5 detik sebelum refresh
+
   })
   .catch(error => {
     document.getElementById('respon').innerHTML = 'Terjadi kesalahan, coba lagi nanti.';
+    document.getElementById('spinner').style.display = 'none'; // Sembunyikan spinner jika terjadi error
+
     console.error('Error:', error);
   });
 });
@@ -232,19 +264,24 @@ document.getElementById('formPernikahan').addEventListener('submit', function(ev
 // Fungsi untuk menampilkan alert melayang
 function showAlert(message) {
   var alertBox = document.createElement('div');
-  alertBox.textContent = message;
+  alertBox.innerHTML = message; // Gunakan innerHTML agar HTML ditampilkan
+
   alertBox.style.position = 'fixed';
-  alertBox.style.bottom = '30px';
+  alertBox.style.bottom = '50%';
   alertBox.style.left = '50%';
   alertBox.style.transform = 'translateX(-50%)';
-  alertBox.style.padding = '10px 20px';
-  alertBox.style.backgroundColor = 'rgba(0, 138, 140, 1)';
+  alertBox.style.padding = '10px 10px';
+  alertBox.style.backgroundColor = 'rgba(0, 138, 140, 0.8)';
   alertBox.style.color = 'rgba(255, 255, 255, 1)';
   alertBox.style.borderRadius = '15px';
   alertBox.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
   alertBox.style.fontSize = '16px';
   alertBox.style.textAlign = 'center';
   alertBox.style.zIndex = '1000';
+  // Mengatur lebar responsif
+  alertBox.style.width = '60%';         // Lebar otomatis
+  alertBox.style.maxWidth = '60%';     // Maksimal lebar 600px
+  alertBox.style.minWidth = '200px';     // Lebar minimal 200px
 
   // Menambahkan alert ke body
   document.body.appendChild(alertBox);
@@ -254,8 +291,6 @@ function showAlert(message) {
     alertBox.remove();
   }, 3000);
 }
-
-
 
 //AKHIR UCAPAN//
 

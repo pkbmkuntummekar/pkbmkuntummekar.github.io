@@ -293,7 +293,7 @@ body, html {
   
   .frame-6 {
     background-color: #fff5c9;
-    background-image: url('6.jpg');
+    background-image: url('5a.jpg');
     color: rgb(255, 255, 255);
     padding: 50px;
   }
@@ -429,3 +429,18 @@ footer {
   text-align: center;
   z-index: 1000;
 }
+
+.spinner {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+}
+
+.tombolmusik{
+  z-index: 9998;
+}
+
+
+
